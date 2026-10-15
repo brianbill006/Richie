@@ -77,6 +77,16 @@ app.get('/', (req, res) => {
             * { box-sizing: border-box; margin: 0; padding: 0; }
             body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: var(--text-dark); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
             
+            /* Splash Screen */
+            #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0e1525; color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s; }
+            .splash-logo { font-size: 32px; font-weight: 700; margin-bottom: 10px; }
+            .splash-sub { font-size: 14px; color: #8890a6; margin-bottom: 30px; }
+            .progress-bar { width: 200px; height: 4px; background: #1e2336; border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
+            .progress-fill { height: 100%; background: var(--deriv-blue); width: 0%; transition: width 0.1s; }
+            .progress-text { font-size: 12px; color: #8890a6; }
+
+            #app { display: none; flex-direction: column; width: 100%; height: 100%; }
+            
             /* Top Navigation */
             .navbar { background: var(--bg-white); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; padding: 0 20px; height: 60px; box-shadow: var(--shadow); z-index: 100; flex-shrink: 0; }
             .logo { font-size: 20px; font-weight: 700; color: var(--deriv-red); margin-right: 40px; }
@@ -84,15 +94,26 @@ app.get('/', (req, res) => {
             .nav-item { padding: 0 15px; height: 100%; display: flex; align-items: center; cursor: pointer; font-weight: 500; color: var(--text-muted); border-bottom: 3px solid transparent; transition: 0.2s; white-space: nowrap; }
             .nav-item:hover, .nav-item.active { color: var(--deriv-red); border-bottom-color: var(--deriv-red); }
             
-            /* User Info & Balance */
-            .user-info { margin-left: auto; display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--deriv-green); }
-            .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+            /* Account Selector */
+            .account-selector { margin-left: auto; position: relative; cursor: pointer; user-select: none; }
+            .account-trigger { display: flex; align-items: center; gap: 8px; background: var(--bg-light); padding: 8px 15px; border-radius: 20px; border: 1px solid var(--border-color); font-weight: 600; }
+            .badge { padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
             .badge.real { background: #e6f7f6; color: #00a79d; border: 1px solid #00a79d; }
             .badge.demo { background: #fdf2e3; color: #f39c12; border: 1px solid #f39c12; }
-            #currency-flag { font-size: 18px; margin-right: -5px; }
+            #currency-flag { font-size: 16px; }
+            .arrow { font-size: 10px; color: var(--text-muted); }
+            .account-dropdown { position: absolute; top: 110%; right: 0; background: var(--bg-white); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 220px; z-index: 1000; overflow: hidden; display: none; }
+            .account-dropdown.show { display: block; }
+            .dropdown-header { padding: 12px 15px; font-size: 11px; color: var(--text-muted); text-transform: uppercase; background: #f8f9fa; border-bottom: 1px solid var(--border-color); font-weight: 700; }
+            .account-item { padding: 12px 15px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; font-size: 13px; transition: 0.2s; }
+            .account-item:hover { background: #f8f9fa; }
+            .account-item.active { background: #eef4fc; border-left: 3px solid var(--deriv-blue); }
+            .account-item .bal { font-weight: 600; color: var(--deriv-green); }
+            .logout-item { padding: 12px 15px; color: var(--deriv-red); font-weight: 600; font-size: 13px; cursor: pointer; text-align: center; border-top: 1px solid var(--border-color); }
+            .logout-item:hover { background: #fff0f0; }
 
             /* Main Content */
-            .main-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 80px; }
+            .main-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 80px; display: block; }
             .page { display: none; max-width: 1200px; margin: 0 auto; }
             .page.active { display: block; }
             
@@ -116,10 +137,11 @@ app.get('/', (req, res) => {
             .toggle-switch { width: 40px; height: 20px; background: var(--deriv-green); border-radius: 20px; position: relative; cursor: pointer; }
             .toggle-switch::after { content: ''; width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; right: 2px; }
             
-            /* Cards & Grid (For other pages) */
+            /* Cards & Grid */
             .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px; }
-            .card { background: var(--bg-white); padding: 20px; border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--border-color); cursor: pointer;}
+            .card { background: var(--bg-white); padding: 20px; border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--border-color); cursor: pointer; }
             .card h3 { font-size: 14px; margin-bottom: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+            .card p { font-size: 13px; color: var(--text-muted); margin-bottom: 15px; }
             
             /* Signal AI */
             .scan-circle { width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #4a90e2, #8a2be2); display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: bold; cursor: pointer; margin: 30px auto; box-shadow: 0 10px 20px rgba(74,144,226,0.3); transition: 0.2s; }
@@ -135,29 +157,54 @@ app.get('/', (req, res) => {
             .digit-box.highlight { border-color: var(--deriv-green); }
             .digit-box.danger { border-color: var(--deriv-red); }
 
+            /* Modals */
+            .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 2000; }
+            .modal-overlay.show { display: flex; }
+            .modal-content { background: var(--bg-white); border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+            .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+            .modal-header h2 { font-size: 18px; }
+            .close-btn { font-size: 24px; cursor: pointer; color: var(--text-muted); }
+            .modal-tabs { display: flex; gap: 5px; margin-bottom: 20px; }
+            .modal-tab { padding: 8px 15px; background: var(--bg-light); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; }
+            .modal-tab.active { background: var(--deriv-blue); color: white; border-color: var(--deriv-blue); }
+            
+            .trade-type-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .trade-type-item { padding: 15px; background: var(--bg-light); border: 1px solid var(--border-color); border-radius: 8px; text-align: center; cursor: pointer; font-weight: 500; }
+            .trade-type-item:hover { background: #eef4fc; border-color: var(--deriv-blue); }
+
             /* Mobile Responsive */
             @media (max-width: 768px) {
                 .navbar { flex-direction: column; height: auto; padding: 10px; }
                 .logo { margin-right: 0; margin-bottom: 10px; }
                 .nav-links { width: 100%; justify-content: space-between; overflow-x: auto; padding-bottom: 5px; }
                 .nav-item { padding: 10px; font-size: 14px; }
-                .user-info { margin-left: 0; margin-top: 10px; width: 100%; justify-content: center; }
+                .account-selector { margin-left: 0; margin-top: 10px; width: 100%; display: flex; justify-content: center; }
+                .account-dropdown { right: auto; left: 50%; transform: translateX(-50%); }
                 .grid { grid-template-columns: 1fr; }
                 .bottom-bar { flex-direction: column; gap: 10px; padding: 15px; }
                 .btn-run { width: 100%; justify-content: center; }
+                .trade-type-list { grid-template-columns: 1fr; }
             }
         </style>
     </head>
     <body>
+        <!-- SPLASH SCREEN -->
+        <div id="splash-screen">
+            <div class="splash-logo">DT</div>
+            <div class="splash-sub">Tredakit Pro Trading Workspace</div>
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+            <div class="progress-text">Boot sequence <span id="progress-text">0%</span></div>
+        </div>
+
         <!-- LOGIN SCREEN -->
-        <div id="login-screen" style="display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; background: var(--bg-light);">
+        <div id="login-screen" style="display: none; justify-content: center; align-items: center; height: 100vh; flex-direction: column; background: var(--bg-light);">
             <div class="logo" style="font-size: 48px; margin-bottom: 20px;">Richie</div>
             <p style="color: var(--text-muted); margin-bottom: 20px;">Deriv Trading Workspace</p>
             <a href="/login" class="btn btn-primary" style="text-decoration:none; display:inline-block; width: auto; padding: 12px 40px; background: var(--deriv-red); color: white; border-radius: 8px;">Login with Deriv</a>
         </div>
 
         <!-- MAIN APP -->
-        <div id="app" style="display: none; width: 100%; height: 100%;">
+        <div id="app">
             <!-- Top Navigation -->
             <div class="navbar">
                 <div class="logo">Richie</div>
@@ -168,11 +215,19 @@ app.get('/', (req, res) => {
                     <div class="nav-item" data-target="signal-ai">Signal AI</div>
                     <div class="nav-item" data-target="manual-trader">Manual Trader</div>
                 </div>
-                <div class="user-info">
-                    <span id="account-type" class="badge demo">Demo</span>
-                    <span id="currency-flag">🇺🇸</span>
-                    <span id="balance">$0.00</span>
-                    <span style="color: var(--deriv-red); cursor: pointer; margin-left: 10px;" onclick="window.location.href='/logout'">Logout</span>
+                
+                <div class="account-selector" id="account-selector">
+                    <div class="account-trigger" onclick="toggleAccountDropdown(event)">
+                        <span class="badge demo" id="account-badge">Demo</span>
+                        <span id="currency-flag">🇺🇸</span>
+                        <span id="balance">$0.00</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="account-dropdown" id="account-dropdown">
+                        <div class="dropdown-header">Your Accounts</div>
+                        <div id="account-list-container"></div>
+                        <div class="logout-item" onclick="window.location.href='/logout'">Logout</div>
+                    </div>
                 </div>
             </div>
 
@@ -202,14 +257,12 @@ app.get('/', (req, res) => {
                     </div>
                 </div>
 
-                <!-- PAGE: BOT BUILDER (AI Bot Generator) -->
+                <!-- PAGE: BOT BUILDER -->
                 <div id="page-bot-builder" class="page">
                     <div class="builder-header">AI Bot Generator</div>
                     
-                    <!-- Section 1: Trade Parameters -->
                     <div class="builder-section">
                         <div class="builder-sub-header">1. Trade parameters</div>
-                        
                         <div class="row">
                             <div class="col">
                                 <label>Market</label>
@@ -221,7 +274,6 @@ app.get('/', (req, res) => {
                                 </select>
                             </div>
                         </div>
-
                         <div class="row">
                             <div class="col">
                                 <label>Trade Type</label>
@@ -255,14 +307,12 @@ app.get('/', (req, res) => {
                                 </select>
                             </div>
                         </div>
-
                         <div class="checkbox-group">
                             <input type="checkbox" id="restart-error">
                             <label for="restart-error">Restart buy/sell on error (disable for better performance)</label>
                         </div>
                     </div>
 
-                    <!-- Section 2: Purchase Conditions -->
                     <div class="builder-section">
                         <div class="builder-sub-header">2. Purchase conditions</div>
                         <div class="row">
@@ -287,7 +337,6 @@ app.get('/', (req, res) => {
                         </div>
                     </div>
 
-                    <!-- Section 3: Trade Options -->
                     <div class="builder-section">
                         <div class="builder-sub-header">3. Trade options</div>
                         <div class="row">
@@ -309,7 +358,6 @@ app.get('/', (req, res) => {
                         </div>
                     </div>
 
-                    <!-- Live Log (Moved below builder) -->
                     <div class="builder-section" style="margin-top: 20px;">
                         <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--text-muted);">Live Analysis Log</h3>
                         <div id="sniper-log">Waiting for bot to start...</div>
@@ -379,8 +427,8 @@ app.get('/', (req, res) => {
                             <input type="number" id="manual-stake" value="1.00" step="0.01">
                         </div>
                         <div style="display: flex; gap: 10px; margin-top: 15px;">
-                            <button class="btn btn-green" id="btn-over" style="background: var(--deriv-green); color: white; padding: 12px; border-radius: 8px;">Over 4</button>
-                            <button class="btn btn-primary" id="btn-under" style="background: var(--deriv-red); color: white; padding: 12px; border-radius: 8px;">Under 5</button>
+                            <button class="btn btn-green" onclick="openTradeTypesModal()" style="background: var(--deriv-blue); color: white; padding: 12px; border-radius: 8px;">Trade Types</button>
+                            <button class="btn btn-primary" onclick="openScannerModal()" style="background: var(--deriv-red); color: white; padding: 12px; border-radius: 8px;">Entry Scanner</button>
                         </div>
                     </div>
                 </div>
@@ -398,6 +446,113 @@ app.get('/', (req, res) => {
             </div>
         </div>
 
+        <!-- MODAL: TRADE TYPES -->
+        <div class="modal-overlay" id="trade-types-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Trade Types</h2>
+                    <span class="close-btn" onclick="closeModal('trade-types-modal')">&times;</span>
+                </div>
+                <div class="trade-type-list">
+                    <div class="trade-type-item">Accumulators</div>
+                    <div class="trade-type-item">Vanillas (Call/Put)</div>
+                    <div class="trade-type-item">Turbos</div>
+                    <div class="trade-type-item">Digits (Matches/Differs)</div>
+                    <div class="trade-type-item">Digits (Even/Odd)</div>
+                    <div class="trade-type-item">Digits (Over/Under)</div>
+                    <div class="trade-type-item">Ups & Downs (Rise/Fall)</div>
+                    <div class="trade-type-item">Ups & Downs (Higher/Lower)</div>
+                    <div class="trade-type-item">Touch/No Touch</div>
+                    <div class="trade-type-item">Multipliers</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: ENTRY SCANNER -->
+        <div class="modal-overlay" id="scanner-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Entry Scanner</h2>
+                    <span class="close-btn" onclick="closeModal('scanner-modal')">&times;</span>
+                </div>
+                <div class="modal-tabs">
+                    <div class="modal-tab active">Over1 / Under8</div>
+                    <div class="modal-tab">Over2 / Under7</div>
+                    <div class="modal-tab">Over3 / Under6</div>
+                </div>
+                <div class="builder-section" style="border-radius: 8px; padding: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600;">Digits Scanner</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Scans Over 1 and Under 8 with recovery confirmation.</div>
+                        </div>
+                        <div style="background: #eef4fc; padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">TICKS 3000</div>
+                    </div>
+                    <div class="row" style="margin-top: 15px;">
+                        <div class="col">
+                            <label>Selected Market</label>
+                            <div style="padding: 10px; background: var(--bg-light); border-radius: 6px; font-size: 13px;">Scan to find the best market</div>
+                        </div>
+                        <div class="col">
+                            <label>Trade Type</label>
+                            <div style="padding: 10px; background: var(--bg-light); border-radius: 6px; font-size: 13px;">Waiting for scan</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 13px; color: var(--text-muted);">Not scanned yet</div>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn btn-primary" style="background: var(--deriv-blue);" onclick="openScannerParams()">Scan Markets</button>
+                        <button class="btn btn-secondary" style="background: var(--deriv-green); color: white;" onclick="closeModal('scanner-modal')">Load Scanner Bot</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: SCANNER PARAMETERS -->
+        <div class="modal-overlay" id="scanner-params-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Scanner Parameters</h2>
+                    <span class="close-btn" onclick="closeModal('scanner-params-modal')">&times;</span>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Stake</label>
+                        <input type="number" value="0.5" step="0.1">
+                    </div>
+                    <div class="col">
+                        <label>Martingale</label>
+                        <input type="number" value="2" step="1">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Number of Wins</label>
+                        <input type="number" value="5" step="1">
+                    </div>
+                    <div class="col">
+                        <label>No. of Digits to Check</label>
+                        <input type="number" value="1" step="1">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Stop Loss</label>
+                        <input type="number" value="50" step="1">
+                    </div>
+                    <div class="col" style="display: flex; align-items: flex-end;">
+                        <div class="checkbox-group" style="margin-bottom: 10px;">
+                            <input type="checkbox" id="use-martingale" checked>
+                            <label for="use-martingale">Use Martingale</label>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="closeModal('scanner-params-modal')">Cancel</button>
+                    <button class="btn btn-primary" style="background: var(--deriv-blue);" onclick="closeModal('scanner-params-modal')">Launch Bot</button>
+                </div>
+            </div>
+        </div>
+
         <script>
             const APP_ID = '${CLIENT_ID}'; 
             let ws;
@@ -411,13 +566,44 @@ app.get('/', (req, res) => {
             
             let sessionStats = { wins: 0, losses: 0, profit: 0, consecutiveLosses: 0, totalTrades: 0 };
 
+            // --- SPLASH SCREEN LOGIC ---
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 100) progress = 100;
+                document.getElementById('progress-fill').style.width = progress + '%';
+                document.getElementById('progress-text').innerText = Math.floor(progress) + '%';
+                if (progress === 100) {
+                    clearInterval(progressInterval);
+                    setTimeout(() => {
+                        document.getElementById('splash-screen').style.opacity = '0';
+                        setTimeout(() => {
+                            document.getElementById('splash-screen').style.display = 'none';
+                            checkAuth();
+                        }, 500);
+                    }, 500);
+                }
+            }, 100);
+
+            function checkAuth() {
+                fetch('/api/me').then(res => res.json()).then(data => {
+                    if (data.loggedIn) {
+                        document.getElementById('login-screen').style.display = 'none';
+                        document.getElementById('app').style.display = 'flex';
+                        connectWebSocket(data.token);
+                    } else {
+                        document.getElementById('login-screen').style.display = 'flex';
+                    }
+                });
+            }
+
+            // --- UI NAVIGATION ---
             function showPage(pageId) {
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                 document.getElementById('page-' + pageId).classList.add('active');
                 document.querySelector('.nav-item[data-target="' + pageId + '"]').classList.add('active');
                 
-                // Show/Hide bottom bar based on page
                 const bottomBar = document.getElementById('bot-builder-bar');
                 if (pageId === 'bot-builder') {
                     bottomBar.style.display = 'flex';
@@ -430,14 +616,65 @@ app.get('/', (req, res) => {
                 item.addEventListener('click', () => showPage(item.getAttribute('data-target')));
             });
 
-            fetch('/api/me').then(res => res.json()).then(data => {
-                if (data.loggedIn) {
-                    document.getElementById('login-screen').style.display = 'none';
-                    document.getElementById('app').style.display = 'flex';
-                    connectWebSocket(data.token);
+            // --- MODAL LOGIC ---
+            function openTradeTypesModal() { document.getElementById('trade-types-modal').classList.add('show'); }
+            function openScannerModal() { document.getElementById('scanner-modal').classList.add('show'); }
+            function openScannerParams() { 
+                closeModal('scanner-modal');
+                document.getElementById('scanner-params-modal').classList.add('show'); 
+            }
+            function closeModal(modalId) { document.getElementById(modalId).classList.remove('show'); }
+
+            // Close modals on outside click
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) overlay.classList.remove('show');
+                });
+            });
+
+            // --- ACCOUNT DROPDOWN ---
+            function toggleAccountDropdown(event) {
+                event.stopPropagation();
+                document.getElementById('account-dropdown').classList.toggle('show');
+            }
+            document.addEventListener('click', (e) => {
+                const dropdown = document.getElementById('account-dropdown');
+                const selector = document.getElementById('account-selector');
+                if (dropdown.classList.contains('show') && !selector.contains(e.target)) {
+                    dropdown.classList.remove('show');
                 }
             });
 
+            function populateAccountList(accountList, currentIsVirtual, currentBalance, currentCurrency) {
+                const container = document.getElementById('account-list-container');
+                container.innerHTML = '';
+                const accounts = accountList && accountList.length > 0 ? accountList : [
+                    { is_virtual: currentIsVirtual ? 1 : 0, currency: currentCurrency, balance: currentBalance }
+                ];
+                accounts.forEach(acc => {
+                    const isVirtual = acc.is_virtual === 1;
+                    const type = isVirtual ? 'Demo' : 'Real';
+                    const currency = acc.currency || 'USD';
+                    const bal = acc.balance ? parseFloat(acc.balance).toFixed(2) : '0.00';
+                    const item = document.createElement('div');
+                    item.className = 'account-item' + (isVirtual === currentIsVirtual ? ' active' : '');
+                    let flagEmoji = '💱';
+                    if (currency === 'USD') flagEmoji = '🇺🇸';
+                    else if (currency === 'EUR') flagEmoji = '🇪🇺';
+                    else if (currency === 'GBP') flagEmoji = '🇬🇧';
+                    item.innerHTML = '<div><div class="type">' + type + ' Account</div><div class="curr">' + flagEmoji + ' ' + currency + '</div></div><div class="bal">$' + bal + '</div>';
+                    item.onclick = (e) => {
+                        e.stopPropagation();
+                        if (isVirtual !== currentIsVirtual) {
+                            alert('To switch to your ' + type + ' account, please log out and log in with your ' + type + ' account. Deriv OAuth tokens are account-specific.');
+                        }
+                        document.getElementById('account-dropdown').classList.remove('show');
+                    };
+                    container.appendChild(item);
+                });
+            }
+
+            // --- WEBSOCKET & TRADING LOGIC ---
             function connectWebSocket(token) {
                 ws = new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=' + APP_ID);
                 ws.onopen = () => { ws.send(JSON.stringify({ authorize: token })); };
@@ -447,35 +684,28 @@ app.get('/', (req, res) => {
             function handleWebSocketMessage(data) {
                 if (data.msg_type === 'authorize') {
                     if (data.error) { console.error('Auth error:', data.error.message); return; }
-                    
                     const isVirtual = data.authorize.is_virtual === 1;
-                    const accountTypeEl = document.getElementById('account-type');
-                    if (isVirtual) {
-                        accountTypeEl.innerText = 'Demo';
-                        accountTypeEl.className = 'badge demo';
-                    } else {
-                        accountTypeEl.innerText = 'Real';
-                        accountTypeEl.className = 'badge real';
-                    }
-
+                    const accountBadge = document.getElementById('account-badge');
+                    if (isVirtual) { accountBadge.innerText = 'Demo'; accountBadge.className = 'badge demo'; }
+                    else { accountBadge.innerText = 'Real'; accountBadge.className = 'badge real'; }
                     const currency = data.authorize.currency;
                     const flagEl = document.getElementById('currency-flag');
                     if (currency === 'USD') flagEl.innerText = '🇺🇸';
                     else if (currency === 'EUR') flagEl.innerText = '🇪🇺';
                     else if (currency === 'GBP') flagEl.innerText = '🇬🇧';
                     else flagEl.innerText = '💱';
-
                     ws.send(JSON.stringify({ balance: 1, subscribe: 1 }));
+                    const accList = data.authorize.account_list || [];
+                    populateAccountList(accList, isVirtual, data.balance.balance, currency);
                 }
                 if (data.msg_type === 'balance') {
                     document.getElementById('balance').innerText = data.balance.balance + ' ' + data.balance.currency;
+                    const accList = data.authorize ? (data.authorize.account_list || []) : [];
+                    const isVirtual = data.balance.loginid.startsWith('VR');
+                    populateAccountList(accList, isVirtual, data.balance.balance, data.balance.currency);
                 }
-                if (data.msg_type === 'history') {
-                    data.history.prices.forEach(price => processTick(price));
-                }
-                if (data.msg_type === 'tick') {
-                    processTick(data.tick.quote);
-                }
+                if (data.msg_type === 'history') { data.history.prices.forEach(price => processTick(price)); }
+                if (data.msg_type === 'tick') { processTick(data.tick.quote); }
                 if (data.msg_type === 'buy') {
                     document.getElementById('sniper-log').innerHTML += '<br>✅ Trade placed! ID: ' + data.buy.contract_id;
                     tradeInProgress = true;
@@ -504,7 +734,7 @@ app.get('/', (req, res) => {
             }
 
             function checkDisciplineLimits() {
-                const maxLosses = 3; // Fixed for now, can be adjusted
+                const maxLosses = 3; 
                 if (sessionStats.consecutiveLosses >= maxLosses) { document.getElementById('sniper-log').innerHTML += '<br>🛑 Max consecutive losses reached. Stopped.'; stopBot(); }
                 else { cooldownTicks = 5; }
             }
@@ -593,7 +823,6 @@ app.get('/', (req, res) => {
                 const amount = parseFloat(document.getElementById('stake-amount').value) || 0.35;
                 const durationType = document.getElementById('duration-type').value;
                 const durationValue = parseInt(document.getElementById('duration-value').value) || 5;
-                
                 let contractType = dynamicContract || ''; 
                 let barrier = '';
                 if (!dynamicContract) {
@@ -614,20 +843,7 @@ app.get('/', (req, res) => {
                     if (dynamicContract === 'DIGITOVER') barrier = '2';
                     else if (dynamicContract === 'DIGITUNDER') barrier = '7';
                 }
-                
-                const tradeRequest = { 
-                    buy: 1, 
-                    price: amount, 
-                    parameters: { 
-                        amount: amount, 
-                        basis: "stake", 
-                        contract_type: contractType, 
-                        currency: "USD", 
-                        duration: durationValue, 
-                        duration_unit: durationType, 
-                        symbol: selectedSymbol 
-                    } 
-                };
+                const tradeRequest = { buy: 1, price: amount, parameters: { amount: amount, basis: "stake", contract_type: contractType, currency: "USD", duration: durationValue, duration_unit: durationType, symbol: selectedSymbol } };
                 if (barrier) tradeRequest.parameters.barrier = barrier;
                 document.getElementById('sniper-log').innerHTML += '<br>Placing trade: ' + contractType + ' | Duration: ' + durationValue + ' ' + durationType;
                 ws.send(JSON.stringify(tradeRequest));
@@ -665,20 +881,13 @@ app.get('/', (req, res) => {
             }
 
             document.getElementById('start-bot-btn')?.addEventListener('click', () => {
-                if (isBotRunning) {
-                    stopBot();
-                } else {
-                    startBot();
-                }
+                if (isBotRunning) { stopBot(); } else { startBot(); }
             });
 
             document.getElementById('scan-btn')?.addEventListener('click', () => {
                 document.getElementById('sniper-log').innerHTML = 'Scanning for ' + currentSignalTab + ' entry...';
-                if (currentSignalTab === 'overunder') {
-                    document.getElementById('bot-select').value = 'atlas_over4';
-                } else {
-                    document.getElementById('bot-select').value = 'even';
-                }
+                if (currentSignalTab === 'overunder') { document.getElementById('bot-select').value = 'atlas_over4'; }
+                else { document.getElementById('bot-select').value = 'even'; }
                 startBot();
             });
 
